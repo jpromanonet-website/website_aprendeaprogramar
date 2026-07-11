@@ -1,14 +1,20 @@
 import React from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function Title({ children, id }) {
-   return (
-      <h1
-         id={id && id}
-         className="text-2xl font-bold underline underline-offset-8 decoration-4 mb-5 text-stone-900 dark:text-white"
-      >
-         {children}
-      </h1>
-   )
+	const { t } = useLanguage();
+	return (
+		<div id={id} className="mb-8 reveal">
+			<p className="font-mono text-xs uppercase tracking-[0.28em] text-magenta dark:text-neon mb-2">
+				{t.title.sector}
+			</p>
+			<h2 className="font-display text-3xl md:text-4xl font-bold text-ice-ink dark:text-white">
+				{children}
+				<span className="text-neon-deep dark:text-neon">_</span>
+			</h2>
+			<div className="mt-3 h-px w-32 bg-gradient-to-r from-neon via-cyan to-magenta" />
+		</div>
+	);
 }
 
 export default Title;

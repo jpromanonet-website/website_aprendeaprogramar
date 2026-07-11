@@ -1,87 +1,96 @@
 import React, { useEffect, useState } from 'react';
 import Contact from './components/Contact';
+import CursorGlow from './components/CursorGlow';
 import Footer from './components/Footer';
+import FxDock from './components/FxDock';
+import Guide from './components/Guide';
 import Intro from './components/Intro';
+import Nav from './components/Nav';
+import ParticleField from './components/ParticleField';
 import Portfolio from './components/Portfolio';
+import ScrollProgress from './components/ScrollProgress';
 import Timeline from './components/Timeline';
+import { useReveal } from './hooks/useReveal';
 
 function App() {
-	const [theme, setTheme] = useState(null);
+	const [theme, setTheme] = useState('dark');
+	const [fxEnabled, setFxEnabled] = useState(true);
 
 	useEffect(() => {
-		if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-			setTheme('dark');
-		} else {
+		const saved = window.localStorage.getItem('aap-theme');
+		if (saved === 'light' || saved === 'dark') {
+			setTheme(saved);
+			return;
+		}
+		if (window.matchMedia('(prefers-color-scheme: light)').matches) {
 			setTheme('light');
 		}
 	}, []);
 
-	const handleThemeSwitch = () => {
-		setTheme(theme === 'dark' ? 'light' : 'dark');
-	};
+	useEffect(() => {
+		const savedFx = window.localStorage.getItem('aap-fx');
+		if (savedFx === 'off') setFxEnabled(false);
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			setFxEnabled(false);
+		}
+	}, []);
 
 	useEffect(() => {
+		const root = document.documentElement;
 		if (theme === 'dark') {
-			document.documentElement.classList.add('dark');
+			root.classList.add('dark');
+			root.classList.remove('light');
 		} else {
-			document.documentElement.classList.remove('dark');
+			root.classList.remove('dark');
+			root.classList.add('light');
 		}
+		window.localStorage.setItem('aap-theme', theme);
 	}, [theme]);
 
-	const sun = (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-			strokeWidth={1.5}
-			stroke="currentColor"
-			className="w-6 h-6"
-		>
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-			/>
-		</svg>
-	);
+	useEffect(() => {
+		const root = document.documentElement;
+		if (fxEnabled) root.classList.remove('fx-off');
+		else root.classList.add('fx-off');
+		window.localStorage.setItem('aap-fx', fxEnabled ? 'on' : 'off');
+	}, [fxEnabled]);
 
-	const moon = (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-			strokeWidth={1.5}
-			stroke="white"
-			className="w-6 h-6"
-		>
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
-			/>
-		</svg>
-	);
+	useReveal();
 
-  return (
-	<>
-		<button
-			type="button"
-			onClick={handleThemeSwitch}
-			className="fixed p-2 z-10 right-20 top-4 bg-violet-300 dark:bg-orange-300 text-lg p-1 rounded-md"
-		>
-			{theme === 'dark' ? sun : moon}
-		</button>
-		<div className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-300 min-h-screen font-inter">
-			<div className="max-w-5xl w-11/12 mx-auto">
-				<Intro />
-				<Portfolio />
-				<Timeline />
-				<Contact />
-				<Footer />
+	return (
+		<>
+			<ScrollProgress />
+			<div className="scanlines pointer-events-none" aria-hidden="true" />
+			<div
+				className="pointer-events-none fixed inset-0 z-[1] opacity-50 dark:opacity-60 bg-grid-fade grid-bg"
+				aria-hidden="true"
+			/>
+			<div
+				className="scan-beam pointer-events-none fixed left-0 right-0 h-28 z-[2] bg-gradient-to-b from-neon/15 via-cyan/10 to-transparent animate-scan-y mix-blend-multiply dark:mix-blend-screen"
+				aria-hidden="true"
+			/>
+			<ParticleField enabled={fxEnabled} theme={theme} />
+			<CursorGlow enabled={fxEnabled} theme={theme} />
+
+			<FxDock
+				theme={theme}
+				fxEnabled={fxEnabled}
+				onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+				onToggleFx={() => setFxEnabled((v) => !v)}
+			/>
+
+			<div className="relative z-10 min-h-screen bg-ice-soft/95 text-ice-ink dark:bg-void dark:text-fog bg-hero-glow">
+				<Nav />
+				<main className="max-w-6xl w-11/12 mx-auto">
+					<Intro />
+					<Guide />
+					<Portfolio />
+					<Timeline />
+					<Contact />
+					<Footer />
+				</main>
 			</div>
-		</div>
-	 </>
-  )
+		</>
+	);
 }
 
-export default App
+export default App;
