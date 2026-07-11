@@ -58,7 +58,7 @@ function Footer() {
 				))}
 			</div>
 			<p className="font-mono text-xs text-ice-muted dark:text-fog-muted">
-				&copy; {new Date().getFullYear()} Juan P. Romano. {t.footer.copy}
+				&copy; {new Date().getFullYear()} Juan P. Romano {t.footer.copy} - Built with ❤️.
 			</p>
 		</footer>
 	);
